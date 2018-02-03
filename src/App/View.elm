@@ -20,7 +20,7 @@ import Element.Ext as Element
 import Element.Input as Input
 import Element.Types exposing (Attr, Node)
 import Styles exposing (..)
-import Variables exposing (colors, colorDerivatives, insulationWidth, scaled)
+import Variables exposing (colors, colorDerivatives, maxInsulationWidth, scaled)
 import Variations exposing (Variations)
 
 
@@ -45,6 +45,7 @@ import Queue.View as Queue
 import Settings.View as Settings
 import Sources.View as Sources
 import Tracks.View as Tracks
+import Visualisations.View as Visualisations
 
 
 -- Children, Pt. 2
@@ -129,6 +130,7 @@ entryLazyNodes model =
     , Element.lazy notifications model.toasties
     , Element.lazy2 overlay model.alfred model.contextMenu
     , Element.lazy ContextMenu.entry model.contextMenu
+    , Element.lazy Visualisations.entry model.windowSize
     ]
 
 
@@ -385,7 +387,7 @@ insulate insulationOptions node =
         ((++)
             [ center
             , height fill
-            , maxWidth (px insulationWidth)
+            , maxWidth (px maxInsulationWidth)
             , minHeight (px 218)
             , width fill
             ]

@@ -53,7 +53,9 @@ function prompt(question) {
   setTimeout(() => node.querySelector(".spinner").style.visibility = "hidden", 0);
 
   return x0p({
+    height: "auto",
     inputPlaceholder: "example@5apps.com",
+    maxHeight: "100%",
     maxWidth: "95vw",
     title: question,
     type: "input",

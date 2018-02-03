@@ -22,6 +22,7 @@ import Time
 import Toasty
 import Types exposing (..)
 import Utils exposing (displayError)
+import Window
 
 
 -- Children
@@ -78,6 +79,7 @@ initialModel flags initialPage origin =
     , storageDebounce = Debounce.init
     , timestamp = Date.fromTime 0
     , toasties = Toasty.initialState
+    , windowSize = flags.windowSize
 
     ------------------------------------
     -- Children
@@ -130,6 +132,7 @@ update msg model =
                     , isElectron = model.isElectron
                     , isHTTPS = model.isHTTPS
                     , screenHeight = model.screenHeight
+                    , windowSize = model.windowSize
                     }
             in
                 (!)
@@ -139,6 +142,11 @@ update msg model =
         SetIsTouchDevice bool ->
             (!)
                 { model | isTouchDevice = bool }
+                []
+
+        SetWindowSize size ->
+            (!)
+                { model | windowSize = size }
                 []
 
         ------------------------------------
@@ -767,6 +775,9 @@ subscriptions model =
         --
         , Ports.shortcutNext (\_ -> QueueMsg Queue.Types.Shift)
         , Ports.shortcutPrevious (\_ -> QueueMsg Queue.Types.Rewind)
+
+        -- Window
+        , Window.resizes SetWindowSize
 
         -- Ports
         , Ports.setIsTouchDevice SetIsTouchDevice

@@ -16,6 +16,7 @@ app = Elm.App.embed(
   , isElectron: !!self.electron
   , isHTTPS: location.protocol === "https:"
   , screenHeight: window.screen.height || window.outerHeight
+  , windowSize: { width: window.innerWidth, height: window.innerHeight }
   }
 );
 

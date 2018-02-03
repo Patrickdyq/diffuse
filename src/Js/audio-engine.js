@@ -56,6 +56,10 @@ let volume,
     mid,
     high;
 
+let analyserLeft,
+    analyserRight,
+    channelSplitter;
+
 // volume
 volume = context.createGain();
 volume.gain.value = 1;
@@ -74,11 +78,22 @@ mid.frequency.value   = 2750;
 mid.Q.value           = 1;
 high.frequency.value  = 8000;
 
+// analyzers
+analyserLeft = context.createAnalyser();
+analyserLeft.fftSize = 256;
+analyserRight = context.createAnalyser();
+analyserRight.fftSize = 256;
+
+channelSplitter = context.createChannelSplitter(2);
+channelSplitter.connect(analyserLeft, 0, 0);
+channelSplitter.connect(analyserRight, 1, 0);
+
 // connect them nodes
 volume.connect(low);
 low.connect(mid);
 mid.connect(high);
 high.connect(context.destination);
+high.connect(channelSplitter);
 
 
 function determineNodeGainValue(knobType, value) {
@@ -326,3 +341,57 @@ function removeOlderAudioElements(timestamp) {
     audioElementsContainer.removeChild(node);
   });
 }
+
+
+
+//
+// Analyse
+//
+
+let analyseFrameId;
+let analyseLeftElement;
+let analyseRightElement;
+
+function analyse() {
+  analyseFrameId = requestAnimationFrame(analyse);
+
+  const pointsLeft = analyserLeft.frequencyBinCount;
+  const pointsRight = analyserRight.frequencyBinCount;
+  const points = [pointsLeft, pointsRight];
+
+  const dataLeft = new Uint8Array(pointsLeft);
+  const dataRight = new Uint8Array(pointsRight);
+
+  analyserLeft.getByteFrequencyData(dataLeft);
+  analyserRight.getByteFrequencyData(dataRight);
+
+  [dataLeft, dataRight].forEach((data, idx) => {
+    let sum = 0;
+    let pid = points[idx];
+
+    for (let j = 0; j < pid; ++j) {
+      sum = sum + data[j];
+    }
+
+    const average = sum / pid;
+    const height = (average / 256) * 130;
+
+    if (idx === 0) {
+      analyseLeftElement = document.querySelector("#leftPeakMeter .value");
+
+      if (analyseLeftElement) {
+        analyseLeftElement.style.height = height + "px";
+      }
+
+    } else {
+      analyseRightElement = document.querySelector("#rightPeakMeter .value");
+
+      if (analyseRightElement) {
+        analyseRightElement.style.height = height + "px";
+      }
+
+    }
+  });
+}
+
+analyse();

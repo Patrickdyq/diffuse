@@ -89,6 +89,6 @@ headerFont =
 -- Space properties
 
 
-insulationWidth : Float
-insulationWidth =
+maxInsulationWidth : Float
+maxInsulationWidth =
     840

@@ -13,6 +13,7 @@ import Slave.Types
 import Svg exposing (Svg)
 import Toasty
 import Time exposing (Time)
+import Window
 
 
 -- Children
@@ -38,6 +39,7 @@ type Msg
     | NoOp
     | Reset
     | SetIsTouchDevice Bool
+    | SetWindowSize Window.Size
       -- Alfred
     | CalculateAlfredResults String
     | HideAlfred
@@ -107,6 +109,7 @@ type alias Model =
     , screenHeight : Int
     , showLoadingScreen : Bool
     , toasties : Toasty.Stack Notification
+    , windowSize : Window.Size
 
     ------------------------------------
     -- Time
@@ -173,4 +176,5 @@ type alias ProgramFlags =
     , isElectron : Bool
     , isHTTPS : Bool
     , screenHeight : Int
+    , windowSize : Window.Size
     }

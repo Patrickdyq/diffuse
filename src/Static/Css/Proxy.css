@@ -93,10 +93,8 @@ a[href].is-styled-link {
 .x0p {
   color: white;
   font-size: 16px;
-  height: auto !important;
   left: 50%;
   line-height: 1.25em;
-  max-height: auto !important;
   position: absolute;
   top: 50%;
   z-index: 9999;
@@ -124,7 +122,7 @@ a[href].is-styled-link {
 .x0p .title {
   font-family: "Montserrat", Overpass, sans-serif;
   margin-bottom: 1.563em;
-  margin-top: 60.5px;
+  margin-top: 121px;
   text-align: center;
 }
 

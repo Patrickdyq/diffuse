@@ -39,7 +39,7 @@ entry model =
     el
         Zed
         [ center
-        , maxWidth (px Variables.insulationWidth)
+        , maxWidth (px Variables.maxInsulationWidth)
         , width fill
         ]
         (column
