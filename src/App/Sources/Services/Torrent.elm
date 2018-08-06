@@ -1,8 +1,8 @@
-module Sources.Services.Local exposing (..)
+module Sources.Services.Torrent exposing (..)
 
-{-| Local Service.
+{-| Torrent Service.
 
-For those local files out there.
+For those all torrents out there.
 
 -}
 
@@ -10,22 +10,12 @@ import Date exposing (Date)
 import Dict
 import Dict.Ext as Dict
 import Http
-import Json.Decode
 import Json.Encode
-import Slave.Events exposing (..)
 import Sources.Pick
+import Sources.Processing.Ports
 import Sources.Processing.Types exposing (..)
 import Sources.Services.Utils exposing (noPrep)
 import Sources.Types exposing (SourceData)
-import String.Ext as String
-import Time
-import Utils exposing (encodeUri)
-
-
-electronServerUrl : String
-electronServerUrl =
-    "http://127.0.0.1:44999"
-
 
 
 -- Properties
@@ -33,8 +23,7 @@ electronServerUrl =
 
 
 defaults =
-    { localPath = "~/Music"
-    , name = "Local Music"
+    { name = "Music from Torrent"
     }
 
 
@@ -46,7 +35,7 @@ Will be used for the forms.
 -}
 properties : List ( String, String, String, Bool )
 properties =
-    [ ( "localPath", "Directory", defaults.localPath, False )
+    [ ( "identifier", "Torrent URL / Magnet URI", "https://some.server/music.torrent", False )
     , ( "name", "Label", defaults.name, False )
     ]
 
@@ -56,7 +45,7 @@ properties =
 initialData : SourceData
 initialData =
     Dict.fromList
-        [ ( "localPath", defaults.localPath )
+        [ ( "identifier", "" )
         , ( "name", defaults.name )
         ]
 
@@ -81,17 +70,20 @@ Or a specific directory in the bucket.
 
 -}
 makeTree : Context -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
-makeTree context currentDate resultMsg =
+makeTree context _ _ =
     let
-        dir =
-            Dict.fetch "localPath" defaults.localPath context.source.data
-
-        url =
-            electronServerUrl ++ "/local/tree?path=" ++ encodeUri dir
+        sourceData =
+            context.source.data
+                |> Dict.toList
+                |> List.map (Tuple.mapSecond Json.Encode.string)
+                |> Json.Encode.object
+                |> Json.Encode.encode 0
     in
-        url
-            |> Http.getString
-            |> Http.send resultMsg
+        Sources.Processing.Ports.makeTorrentTree
+            { filePaths = []
+            , sourceId = context.source.id
+            , sourceData = sourceData
+            }
 
 
 {-| Re-export parser functions.
@@ -103,15 +95,9 @@ parsePreparationResponse =
 
 parseTreeResponse : String -> Marker -> TreeAnswer Marker
 parseTreeResponse response _ =
-    let
-        paths =
-            response
-                |> Json.Decode.decodeString (Json.Decode.list Json.Decode.string)
-                |> Result.withDefault []
-    in
-        { filePaths = paths
-        , marker = TheEnd
-        }
+    { filePaths = []
+    , marker = TheEnd
+    }
 
 
 parseErrorResponse : String -> String
@@ -144,10 +130,4 @@ We need this to play the track.
 -}
 makeTrackUrl : Date -> SourceData -> HttpMethod -> String -> String
 makeTrackUrl currentDate srcData method pathToFile =
-    let
-        dir =
-            srcData
-                |> Dict.fetch "localPath" defaults.localPath
-                |> String.chop "/"
-    in
-        electronServerUrl ++ "/local/file?path=" ++ encodeUri (dir ++ "/" ++ pathToFile)
+    "torrent://" ++ Dict.fetch "identifier" "" srcData ++ "@" ++ pathToFile

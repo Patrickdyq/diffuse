@@ -75,9 +75,12 @@ prepare _ _ _ =
 
 {-| Create a directory tree.
 -}
-makeTree : SourceData -> Marker -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
-makeTree srcData marker currentDate resultMsg =
+makeTree : Context -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
+makeTree context currentDate resultMsg =
     let
+        srcData =
+            context.source.data
+
         username =
             Dict.fetch "username" "" srcData
 
@@ -89,6 +92,9 @@ makeTree srcData marker currentDate resultMsg =
 
         host =
             Dict.fetch "url" "" srcData
+
+        marker =
+            context.treeMarker
 
         inProgress =
             case marker of

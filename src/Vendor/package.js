@@ -5,7 +5,9 @@ self.blockstack = require("blockstack");
 self.camelcase = require("camelcase");
 self.encoding = require("text-encoding");
 self.lunr = require("lunr");
+
 self.RemoteStorage = require("remotestoragejs/release/remotestorage");
+self.WebTorrent = require("webtorrent");
 
 if (self.document) {
   self.tocca = require("tocca");

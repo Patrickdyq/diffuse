@@ -226,6 +226,12 @@ update msg model =
             in
                 ($) model [ cmd ] [ insert ]
 
+        --
+        --
+        --
+        NoOp ->
+            ( model, Cmd.none )
+
 
 
 -- 🔥  ~  Constants
@@ -261,6 +267,17 @@ publicError service err =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.batch
-        [ Ports.receiveTags TagsStep ]
+subscriptions model =
+    let
+        receiveTorrentTree : ContextForTree -> Msg
+        receiveTorrentTree treeContext =
+            model.status
+                |> Maybe.map (List.map Tuple.first)
+                |> Maybe.andThen (Steps.treeContextToContext treeContext)
+                |> Maybe.map (\ctx -> TreeStep ctx (Ok ""))
+                |> Maybe.withDefault NoOp
+    in
+        Sub.batch
+            [ Ports.receiveTags TagsStep
+            , Ports.receiveTorrentTree receiveTorrentTree
+            ]

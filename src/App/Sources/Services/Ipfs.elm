@@ -68,9 +68,12 @@ prepare _ _ _ =
 
 {-| Create a directory tree.
 -}
-makeTree : SourceData -> Marker -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
-makeTree srcData marker _ resultMsg =
+makeTree : Context -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
+makeTree context _ resultMsg =
     let
+        srcData =
+            context.source.data
+
         gateway =
             srcData
                 |> Dict.get "gateway"
@@ -83,6 +86,9 @@ makeTree srcData marker _ resultMsg =
                             String.cons char acc
                     )
                     ""
+
+        marker =
+            context.treeMarker
 
         hash =
             case marker of

@@ -138,14 +138,17 @@ List all the tracks in the bucket.
 Or a specific directory in the bucket.
 
 -}
-makeTree : SourceData -> Marker -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
-makeTree srcData marker currentDate resultMsg =
+makeTree : Context -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
+makeTree context currentDate resultMsg =
     let
+        srcData =
+            context.source.data
+
         accessToken =
             Dict.fetch "accessToken" "" srcData
 
         body =
-            (case marker of
+            (case context.treeMarker of
                 TheBeginning ->
                     [ ( "limit", Json.Encode.int 2000 )
                     , ( "path", Json.Encode.string (getProperDirectoryPath srcData) )
@@ -163,7 +166,7 @@ makeTree srcData marker currentDate resultMsg =
                 |> Http.jsonBody
 
         url =
-            case marker of
+            case context.treeMarker of
                 TheBeginning ->
                     "https://api.dropboxapi.com/2/files/list_folder"
 

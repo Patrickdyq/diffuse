@@ -6,7 +6,9 @@ module Sources.Processing.Steps
         , takeTagsStep
           --
         , findTagsContextSource
+        , findTreeContextSource
         , tracksFromTagsContext
+        , treeContextToContext
         )
 
 {-| Processing.
@@ -269,8 +271,7 @@ makeTree : Context -> Date -> Cmd Msg
 makeTree context currentDate =
     Services.makeTree
         context.source.service
-        context.source.data
-        context.treeMarker
+        context
         currentDate
         (TreeStep context)
 
@@ -324,6 +325,11 @@ findTagsContextSource tagsContext =
     List.find (.id >> (==) tagsContext.sourceId)
 
 
+findTreeContextSource : ContextForTree -> List Source -> Maybe Source
+findTreeContextSource treeContext =
+    List.find (.id >> (==) treeContext.sourceId)
+
+
 tracksFromTagsContext : ContextForTags -> List Track
 tracksFromTagsContext context =
     context.receivedTags
@@ -331,6 +337,22 @@ tracksFromTagsContext context =
         |> List.filter (Tuple.second >> Maybe.isJust)
         |> List.map (Tuple.mapSecond (Maybe.withDefault Tracks.Types.emptyTags))
         |> List.map (makeTrack context.sourceId)
+
+
+treeContextToContext : ContextForTree -> List Source -> Maybe Context
+treeContextToContext ctx sources =
+    case findTreeContextSource ctx sources of
+        Just source ->
+            Just
+                { filePaths = ctx.filePaths
+                , origin = ""
+                , preparationMarker = TheEnd
+                , source = source
+                , treeMarker = TheEnd
+                }
+
+        Nothing ->
+            Nothing
 
 
 

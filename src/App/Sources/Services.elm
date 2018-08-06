@@ -15,9 +15,9 @@ import Sources.Services.Dropbox as Dropbox
 import Sources.Services.Google as Google
 import Sources.Services.Ipfs as Ipfs
 import Sources.Services.Local as Local
+import Sources.Services.Torrent as Torrent
 import Sources.Services.WebDav as WebDav
 import Sources.Types exposing (..)
-
 
 
 -- Functions implemented by services
@@ -47,6 +47,9 @@ initialData service =
         Local ->
             Local.initialData
 
+        Torrent ->
+            Torrent.initialData
+
         WebDav ->
             WebDav.initialData
 
@@ -75,14 +78,16 @@ makeTrackUrl service =
         Local ->
             Local.makeTrackUrl
 
+        Torrent ->
+            Torrent.makeTrackUrl
+
         WebDav ->
             WebDav.makeTrackUrl
 
 
 makeTree :
     Service
-    -> SourceData
-    -> Marker
+    -> Context
     -> Date
     -> (Result Http.Error String -> Processing.Msg)
     -> Cmd Processing.Msg
@@ -108,6 +113,9 @@ makeTree service =
 
         Local ->
             Local.makeTree
+
+        Torrent ->
+            Torrent.makeTree
 
         WebDav ->
             WebDav.makeTree
@@ -137,6 +145,9 @@ parseErrorResponse service =
         Local ->
             Local.parseErrorResponse
 
+        Torrent ->
+            Torrent.parseErrorResponse
+
         WebDav ->
             WebDav.parseErrorResponse
 
@@ -164,6 +175,9 @@ parsePreparationResponse service =
 
         Local ->
             Local.parsePreparationResponse
+
+        Torrent ->
+            Torrent.parsePreparationResponse
 
         WebDav ->
             WebDav.parsePreparationResponse
@@ -193,6 +207,9 @@ parseTreeResponse service =
         Local ->
             Local.parseTreeResponse
 
+        Torrent ->
+            Torrent.parseTreeResponse
+
         WebDav ->
             WebDav.parseTreeResponse
 
@@ -220,6 +237,9 @@ postProcessTree service =
 
         Local ->
             Local.postProcessTree
+
+        Torrent ->
+            Torrent.postProcessTree
 
         WebDav ->
             WebDav.postProcessTree
@@ -249,6 +269,9 @@ prepare service =
         Local ->
             Local.prepare
 
+        Torrent ->
+            Torrent.prepare
+
         WebDav ->
             WebDav.prepare
 
@@ -276,6 +299,9 @@ properties service =
 
         Local ->
             Local.properties
+
+        Torrent ->
+            Torrent.properties
 
         WebDav ->
             WebDav.properties
@@ -319,6 +345,9 @@ keyToType str =
         "Local" ->
             Local
 
+        "Torrent" ->
+            Torrent
+
         "WebDav" ->
             WebDav
 
@@ -350,6 +379,9 @@ typeToKey service =
         Local ->
             "Local"
 
+        Torrent ->
+            "Torrent"
+
         WebDav ->
             "WebDav"
 
@@ -368,21 +400,21 @@ labels isElectron =
             , ( typeToKey Dropbox, "Dropbox" )
             , ( typeToKey Google, "Google Drive" )
             , ( typeToKey Ipfs, "IPFS" )
+            , ( typeToKey Torrent, "Torrent" )
 
             -- Disabled
             -- ========
             -- ( typeToKey AzureFile, "Azure File Storage" ) (see issue #123)
             ]
     in
-    if isElectron then
-        List.append
+        if isElectron then
+            List.append
+                default
+                [ ( typeToKey Local, "Locally" )
+                , ( typeToKey WebDav, "WebDAV" )
+                ]
+        else
             default
-            [ ( typeToKey Local, "Locally" )
-            , ( typeToKey WebDav, "WebDAV" )
-            ]
-
-    else
-        default
 
 
 {-| Build a `NewForm` from a redirect with a hash.

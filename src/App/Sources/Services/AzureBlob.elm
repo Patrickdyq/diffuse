@@ -78,9 +78,12 @@ List all the tracks in the container.
 Or a specific directory in the container.
 
 -}
-makeTree : SourceData -> Marker -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
-makeTree srcData marker currentDate resultMsg =
+makeTree : Context -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
+makeTree context currentDate resultMsg =
     let
+        srcData =
+            context.source.data
+
         directoryPath =
             srcData
                 |> Dict.get "directoryPath"
@@ -91,7 +94,7 @@ makeTree srcData marker currentDate resultMsg =
             [ ( "maxresults", "1000" ) ]
 
         params =
-            case marker of
+            case context.treeMarker of
                 InProgress s ->
                     [ ( "marker", s ) ]
 

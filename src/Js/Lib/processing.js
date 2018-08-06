@@ -4,7 +4,6 @@
 //
 // Audio processing, getting metadata, etc.
 
-
 const tagSet = ["album", "artist", "disc", "genre", "nr", "picture", "title", "year"];
 
 

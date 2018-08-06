@@ -84,9 +84,12 @@ List all the tracks in the bucket.
 Or a specific directory in the bucket.
 
 -}
-makeTree : SourceData -> Marker -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
-makeTree srcData marker currentDate resultMsg =
+makeTree : Context -> Date -> (Result Http.Error String -> Msg) -> Cmd Msg
+makeTree context currentDate resultMsg =
     let
+        srcData =
+            context.source.data
+
         directoryPath =
             srcData
                 |> Dict.get "directoryPath"
@@ -105,7 +108,7 @@ makeTree srcData marker currentDate resultMsg =
                 []
 
         continuation =
-            case marker of
+            case context.treeMarker of
                 InProgress s ->
                     [ ( "continuation-token", s ) ]
 

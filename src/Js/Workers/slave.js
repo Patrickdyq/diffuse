@@ -6,6 +6,7 @@
 
 importScripts("/vendor/package.js");
 importScripts("/lib/processing.js");
+importScripts("/lib/torrents.js");
 importScripts("/lib/urls.js");
 importScripts("/slave.js");
 
@@ -14,19 +15,24 @@ const app = Elm.Slave.worker();
 
 
 //
-// Incoming messages
+// Incoming & Outgoing
 
 self.onmessage = event => {
   app.ports.incoming.send(event.data);
 };
 
 
-
-//
-// Slave ports
-
 app.ports.outgoing.subscribe(aura => {
   self.postMessage(aura);
+});
+
+
+
+//
+// Processing ports
+
+app.ports.makeTorrentTree.subscribe(context => {
+  torrentTree(context).then(app.ports.receiveTorrentTree.send);
 });
 
 

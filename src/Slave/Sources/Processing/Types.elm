@@ -16,6 +16,7 @@ type Msg
     | TreeStep Context (Result Http.Error String)
     | TreeStepRemoveTracks SourceId (List String)
     | TagsStep ContextForTags
+    | NoOp
 
 
 
@@ -70,6 +71,13 @@ type alias ContextForTags =
     , receivedTags : List (Maybe Tags)
     , sourceId : String
     , urlsForTags : List TagUrls
+    }
+
+
+type alias ContextForTree =
+    { filePaths : List String
+    , sourceId : String
+    , sourceData : String
     }
 
 

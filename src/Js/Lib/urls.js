@@ -29,6 +29,13 @@ function transformUrl(url) {
         response => response.link
       );
 
+    case "torrent":
+      const torrentBits = parts[1].split("@");
+      const identifier = torrentBits[0];
+      const filePath = torrentBits[1];
+
+      return torrentFile(identifier, filePath);
+
     default:
       return Promise.resolve(url);
 
