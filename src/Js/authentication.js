@@ -276,10 +276,45 @@ AUTH_SYSTEM.METHOD =
     // Data
 
 
-    getData: _ => blockstack.getFile(KEY),
+    getData: _ => new Promise((resolve, reject) => {
+      const handler = event => {
+        switch (event.data.action) {
+          case "GET_SUCCESS":   return event.data.data
+                                    ? resolve( event.data.data )
+                                    : resolve( null );
+
+          case "GET_FAILURE":   return reject(`Failed to get data, ${event.data.data}.`);
+          default:              return reject("Unavailable");
+        }
+      };
+
+      doWork(worker, {
+        action: "GET",
+        data: { path: KEY },
+        resolve: resolve,
+        reject: reject,
+        handler: handler
+      });
+    }),
 
 
-    storeData: json => blockstack.putFile(KEY, json)
+    storeData: json => new Promise((resolve, reject) => {
+      const handler = event => {
+        switch (event.data.action) {
+          case "SET_SUCCESS":   return resolve();
+          case "SET_FAILURE":   return reject(`Failed to store data, ${event.data.data}.`);
+          default:              return reject("Unavailable");
+        }
+      };
+
+      doWork(worker, {
+        action: "SET",
+        data: { json: json, path: KEY },
+        resolve: resolve,
+        reject: reject,
+        handler: handler
+      });
+    })
 
   }
 
