@@ -8,8 +8,11 @@ import Shikensu.Contrib
 import Shikensu.Contrib.IO as Shikensu
 import Shikensu.Utilities
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Char as Char
+import qualified Data.HashMap.Strict as HashMap (fromList)
 import qualified Data.List as List
+import qualified Data.Text.IO as Text
 
 
 -- | (• ◡•)| (❍ᴥ❍ʋ)
@@ -18,11 +21,12 @@ import qualified Data.List as List
 main :: IO Dictionary
 main =
     do
+        de <- dependencies
         se <- sequences
 
         -- Execute flows
         -- & reduce to a single dictionary
-        let dictionary = List.concatMap (flow ()) se
+        let dictionary = List.concatMap (flow de) se
 
         -- Make a file tree
         -- and then write to disk
@@ -47,6 +51,9 @@ data Sequence
     | Images
     | Js
     | Manifest
+    -- About Pages
+    | AboutCss
+    | AboutPages
 
 
 sequences :: IO [( Sequence, Dictionary )]
@@ -59,6 +66,10 @@ sequences = lsequence
     , ( Images,         list "Static/Images/**/*.*"     )
     , ( Js,             list "Js/**/*.js"               )
     , ( Manifest,       list "Static/manifest.json"     )
+
+    -- About Pages
+    , ( AboutPages,      list "Static/About/**/*.md"    )
+    , ( AboutCss,        list "Static/About/**/*.css"   )
     ]
 
 
@@ -82,12 +93,35 @@ flow _ (Js, dict)             = dict |> map lowerCasePath
 flow _ (Manifest, dict)       = dict
 
 
+{-| About Pages -}
+flow _ (AboutCss, dict) =
+    dict
+        |> map lowerCasePath
+        |> prefixDirname "about/"
+
+flow x (AboutPages, dict) =
+    dict
+        |> renderContent markdownRenderer
+        |> renderContent (layoutRenderer $ x !~> "aboutLayout")
+        |> rename "About.md" "index.html"
+        |> prefixDirname "about/"
+
+
 
 -- Additional IO
 -- Flow dependencies
 
 
-type Dependencies = ()
+type Dependencies = Aeson.Object
+
+
+dependencies :: IO Dependencies
+dependencies = do
+    aboutLayout <- Text.readFile "srcDeux/Static/About/Layout.html"
+
+    return $ HashMap.fromList
+        [ ("aboutLayout", Aeson.toJSON aboutLayout)
+        ]
 
 
 

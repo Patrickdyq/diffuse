@@ -2,6 +2,7 @@ module UI exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
+import Page exposing (Page)
 import Return exposing (..)
 import Url exposing (Url)
 
@@ -32,6 +33,7 @@ main =
 
 type alias Model =
     { navKey : Nav.Key
+    , page : Page
     , url : Url
     }
 
@@ -42,6 +44,7 @@ init flags url key =
       -- Initial model
       -----------------------------------------
       { navKey = key
+      , page = Page.fromUrl url
       , url = url
       }
       -----------------------------------------
@@ -76,7 +79,11 @@ update msg model =
                     return model (Nav.load href)
 
         UrlChanged url ->
-            singleton { model | url = url }
+            singleton
+                { model
+                    | page = Page.fromUrl url
+                    , url = url
+                }
 
 
 
