@@ -1,4 +1,4 @@
-module Page exposing (Page(..), fromUrl)
+module UI.Page exposing (Page(..), fromUrl)
 
 import Url exposing (Url)
 import Url.Parser exposing (..)

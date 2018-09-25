@@ -64,7 +64,7 @@ sequences = lsequence
     , ( Hosting,        list "Static/Hosting/**/*"      )
     , ( Html,           list "Static/Html/**/*.html"    )
     , ( Images,         list "Static/Images/**/*.*"     )
-    , ( Js,             list "Js/**/*.js"               )
+    , ( Js,             list "Javascript/**/*.js"       )
     , ( Manifest,       list "Static/manifest.json"     )
 
     -- About Pages

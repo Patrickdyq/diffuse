@@ -2,17 +2,14 @@ module UI exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
-import Page exposing (Page)
 import Return exposing (..)
+import UI.Core exposing (Flags, Model, Msg(..))
+import UI.Page as Page
 import Url exposing (Url)
 
 
 
 -- ⛩
-
-
-type alias Flags =
-    {}
 
 
 main : Program Flags Model Msg
@@ -29,13 +26,6 @@ main =
 
 
 -- 🌳
-
-
-type alias Model =
-    { navKey : Nav.Key
-    , page : Page
-    , url : Url
-    }
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -56,12 +46,6 @@ init flags url key =
 
 
 -- 📣
-
-
-type Msg
-    = -- URL
-      LinkClicked Browser.UrlRequest
-    | UrlChanged Url
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -1,9 +1,8 @@
 {
     "type": "application",
     "source-directories": [
-        "srcDeux/Brain",
-        "srcDeux/Library",
-        "srcDeux/UI"
+        "srcDeux/Applications",
+        "srcDeux/Library"
     ],
     "elm-version": "0.19.0",
     "dependencies": {
