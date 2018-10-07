@@ -2,9 +2,17 @@ module UI exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
-import Return exposing (..)
+import Html exposing (Html, div)
+import Return2
+import Return3
+import Svg.Elements
+import Tachyons
+import Tachyons.Classes as Tachyons
+import UI.Backdrop
 import UI.Core exposing (Flags, Model, Msg(..))
 import UI.Page as Page
+import UI.Ports
+import UI.Reply as Reply exposing (R3D3, Reply)
 import Url exposing (Url)
 
 
@@ -36,6 +44,9 @@ init flags url key =
       { navKey = key
       , page = Page.fromUrl url
       , url = url
+
+      -- Children
+      , backdrop = UI.Backdrop.initialModel
       }
       -----------------------------------------
       -- Initial command
@@ -51,23 +62,73 @@ init flags url key =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Bypass ->
+            Return2.withNoCmd model
+
+        -----------------------------------------
+        -- Children
+        -----------------------------------------
+        BackdropMsg sub ->
+            model.backdrop
+                |> UI.Backdrop.update sub
+                |> Return3.mapCmd BackdropMsg
+                |> Return3.mapModel (\child -> { model | backdrop = child })
+                |> handleReplies
+
         -----------------------------------------
         -- URL
         -----------------------------------------
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    return model (Nav.pushUrl model.navKey <| Url.toString url)
+                    url
+                        |> Url.toString
+                        |> Nav.pushUrl model.navKey
+                        |> return model
 
                 Browser.External href ->
-                    return model (Nav.load href)
+                    href
+                        |> Nav.load
+                        |> return model
 
         UrlChanged url ->
-            singleton
-                { model
-                    | page = Page.fromUrl url
-                    , url = url
-                }
+            ( { model
+                | page = Page.fromUrl url
+                , url = url
+              }
+            , Cmd.none
+            )
+
+
+
+-- 📣  ~  Replies
+
+
+handleReplies : R3D3 Model Msg -> ( Model, Cmd Msg )
+handleReplies ( model, cmd, maybeReplies ) =
+    maybeReplies
+        |> Maybe.withDefault []
+        |> List.map translateReply
+        |> List.foldl andThenUpdate ( model, cmd )
+
+
+andThenUpdate : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+andThenUpdate msg ( model, cmd ) =
+    model
+        |> update msg
+        |> Tuple.mapSecond (\c -> Cmd.batch [ cmd, c ])
+
+
+return : model -> Cmd msg -> ( model, Cmd msg )
+return model msg =
+    ( model, msg )
+
+
+translateReply : Reply -> Msg
+translateReply reply =
+    case reply of
+        Reply.Chill ->
+            Bypass
 
 
 
@@ -76,7 +137,9 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Sub.batch
+        [ UI.Ports.fromBrain (always Bypass)
+        ]
 
 
 
@@ -87,5 +150,16 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Diffuse"
     , body =
-        []
+        [ root model
+        ]
     }
+
+
+root : Model -> Html Msg
+root model =
+    div
+        [ Tachyons.classes
+            [ Tachyons.min_vh_100 ]
+        ]
+        [ Html.map BackdropMsg (UI.Backdrop.view model.backdrop)
+        ]

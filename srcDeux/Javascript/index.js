@@ -21,7 +21,7 @@ const brain = new Worker("/workers/brain.js");
 // app.ports.toBrain.subscribe(thing => {
 //   brain.postMessage(thing);
 // });
-//
+// 
 // brain.onmessage = event => {
 //   app.ports.fromBrain.send(event.data);
 // };

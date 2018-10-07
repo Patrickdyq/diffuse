@@ -65,9 +65,8 @@ watch-wo-build:
 
 watch-elm:
 	@watchexec -p \
-		-w $(SRC_DIR)/Brain \
+		-w $(SRC_DIR)/Applications \
 		-w $(SRC_DIR)/Library \
-		-w $(SRC_DIR)/UI \
 		-- make elm
 
 
